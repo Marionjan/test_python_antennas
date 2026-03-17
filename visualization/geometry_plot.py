@@ -75,6 +75,5 @@ def plot_helicopter(heli):
     # ======================
     # AFFICHAGE
     # ======================
-    # plotter.add_axes()
     plotter.add_title("Helicopter + Antennas")
     plotter.show()
