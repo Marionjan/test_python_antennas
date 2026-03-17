@@ -16,7 +16,7 @@ def plot_3d_radiation_pattern(antenna):
     theta = np.linspace(0, np.pi, 100)
     theta_grid, phi_grid = np.meshgrid(theta, phi)
 
-    gain = antenna.gain(theta_grid, phi_grid)
+    gain = antenna.gain(theta_grid)
     gain_abs = np.abs(gain)
 
     # Convert spherical to cartesian coordinates

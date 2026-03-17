@@ -10,7 +10,7 @@ class Dipole(Antenna):
     Simple dipole antenna model.
     """
 
-    def __init__(self, position, orientation, frequency, tx_power_dBm, length=None):
+    def __init__(self, position, orientation, frequency, length=None):
         """
         Parameters
         ----------
@@ -20,10 +20,9 @@ class Dipole(Antenna):
         length : dipole length (optional)
         """
 
-        super().__init__(position, orientation, frequency, tx_power_dBm)
+        super().__init__(position, orientation, frequency)
 
         self.orientation = normalize(orientation)
-        self.gain = 1
 
         # default : half-wave dipole
         if length is None:
@@ -46,7 +45,7 @@ class Dipole(Antenna):
         """
 
         # classic dipole pattern
-        return np.sin(theta)
+        return np.cos(theta)
 
     def gain(self, theta):
         """

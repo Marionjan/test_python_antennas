@@ -17,12 +17,12 @@ from geometry.tail import Tail
 # =========================
 from antennas.dipole import Dipole
 from antennas.monopole import Monopole
-# from antennas.patch import Patch
 
 # =========================
 # Electromagnetic solver
 # =========================
 from em_solver.mom_solver import MoMSolver
+from em_solver.solveur_base import EMSolver
 # from em_solver.fdtd_solver import FDTDSolver
 
 # =========================
@@ -38,25 +38,12 @@ from propagation.near_field import compute_near_field
 # from propagation.far_field import compute_far_field
 
 # =========================
-# Optimization
-# =========================
-# from optimization.antenna_placement import optimize_antenna_positions
-# from optimization.cost_functions import coupling_cost
-
-# =========================
 # Visualization
 # =========================
 from visualization.geometry_plot import plot_helicopter
 from visualization.field_plot import plot_field_slice
 from visualization.coupling_plot import plot_coupling_matrix
-from visualization.radiation_plot import plot_radiation_pattern
 
-
-# =========================
-# Utilities
-# =========================
-from utils.constants import C
-from utils.math_utils import create_3d_grid
 
 
 def main():
@@ -81,7 +68,6 @@ def main():
     ant1 = Dipole(position=[4.1, 0, 0], orientation=[1, 0, 0], frequency=88e6)
     ant2 = Dipole(position=[-6, 0, 0.4], orientation=[0, 0, 1], frequency=88e6)
     ant3 = Dipole(position=[-5, 0, 0.4], orientation=[0, 0, 1], frequency=88e6)
-    
     # Antennes tests
     # ant1 = Dipole(position=[0, 0, 0], orientation=[0, 0, 0], frequency=88e6)
     # ant2 = Dipole(position=[2, 0, 0], orientation=[0, 0, 1], frequency=88e6)
@@ -112,6 +98,7 @@ def main():
     # 4. Create EM solver
     # -------------------------
     solver = MoMSolver(heli)
+    # solver = EMSolver(heli)
 
     # -------------------------
     # 5. Compute coupling matrix
@@ -120,15 +107,15 @@ def main():
 
     print("Coupling matrix S:")
     print(S)
-
+    
     # -------------------------
     # 6. Plot coupling
     # -------------------------
     plot_coupling_matrix(S)
 
-    # -------------------------
-    # 7. Near field simulation
-    # -------------------------
+    # # -------------------------
+    # # 7. Near field simulation
+    # # -------------------------
     # grid = create_3d_grid(xlim=(-10,10), ylim=(-10,10), zlim=(0,10), resolution=20)
 
     # field = compute_near_field(grid, heli.antennas, solver)

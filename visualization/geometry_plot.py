@@ -1,51 +1,80 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
-from visualization.ax import set_axes_equal
 from visualization.radiation_plot import plot_3d_radiation_pattern
+import pyvista as pv
+import numpy as np
 
 
 def plot_helicopter(heli):
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    plotter = pv.Plotter()
 
-    # fuselage (cylindre simplifié)
+    # ======================
+    # FUSELAGE
+    # ======================
     Lf = heli.fuselage.length
     Rf = heli.fuselage.radius
-    
-    xf1 = np.linspace(-Lf/2, Lf/2, 50)
-    theta1 = np.linspace(0, 2*np.pi, 50)
-    theta, xf = np.meshgrid(theta1, xf1)
 
-    y = Rf * np.cos(theta)
-    z = Rf * np.sin(theta)
-    
-    ax.plot_surface(xf, y, z, alpha=0.3, color = "cyan")
+    fuselage = pv.Cylinder(
+        center=(0, 0, 0),
+        direction=(1, 0, 0),
+        radius=Rf,
+        height=Lf,
+        resolution=50
+    )
 
-    # tail (cylindre simplifié)
-    Lt = heli.tail.length
-    Rt = heli.tail.radius
-    
-    xt1 = np.linspace(-Lf/2, -(Lf/2 + Lt), 50)
-    theta, xt = np.meshgrid(theta1, xt1)
+    plotter.add_mesh(fuselage, color="cyan", opacity=0.3)
 
-    y = Rt * np.cos(theta)
-    z = Rt * np.sin(theta)
+    # ======================
+    # TAIL
+    # ======================
+    if heli.tail is not None:
+        Lt = heli.tail.length
+        Rt = heli.tail.radius
 
-    ax.plot_surface(xt, y, z, alpha=0.3)
-    
-    # antennes
+        tail = pv.Cylinder(
+            center=(-Lf/2 - Lt/2, 0, 0),
+            direction=(1, 0, 0),
+            radius=Rt,
+            height=Lt,
+            resolution=50
+        )
+
+        plotter.add_mesh(tail, color="lightgray", opacity=0.3)
+
+    # ======================
+    # ANTENNES
+    # ======================
     for ant in heli.antennas:
         p = ant.position
-        ax.scatter(p[0], p[1], p[2], color='red', s=40)
-        xant, yant, zant = plot_3d_radiation_pattern(ant)
-        # fig = plt.gcf()
-        # ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(xant, yant, zant, alpha = 1,cmap='viridis' )         #cmap='viridis'
 
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
+        # point antenne
+        antenna_point = pv.Sphere(radius=0.1, center=p)
+        plotter.add_mesh(antenna_point, color="red")
 
-    set_axes_equal(ax)
+        # ======================
+        # RAYONNEMENT
+        # ======================
+        try:
+            xant, yant, zant = plot_3d_radiation_pattern(ant)
+
+            points = np.c_[xant.ravel(), yant.ravel(), zant.ravel()]
+            radiation = pv.PolyData(points)
+
+            field = np.sqrt(xant**2 + yant**2 + zant**2)
+
+            radiation["gain"] = field.ravel(order="F")
+
+            plotter.add_mesh(
+                radiation,
+                scalars="gain",
+                cmap="viridis",
+                opacity=1
+            )
+        except Exception:
+            pass  # si pas défini
+
+    # ======================
+    # AFFICHAGE
+    # ======================
+    # plotter.add_axes()
+    plotter.add_title("Helicopter + Antennas")
+    plotter.show()

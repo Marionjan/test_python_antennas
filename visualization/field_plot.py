@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pyvista as pv
+
 
 def plot_field_slice(field, grid, axis="z", index=None):
     X, Y, Z = grid
@@ -33,3 +35,24 @@ def plot_field_slice(field, grid, axis="z", index=None):
     plt.contourf(Xs, Ys, Es, levels=40)
     plt.colorbar(label="|E|")
     plt.title(f"Near Field Magnitude ({slice_label})")
+
+
+
+def plot_near_field(points, field):
+
+    points = np.array(points)
+    field = np.abs(field)
+
+    cloud = pv.PolyData(points)
+    cloud["E"] = field
+
+    plotter = pv.Plotter()
+    plotter.add_mesh(
+        cloud,
+        scalars="E",
+        render_points_as_spheres=True,
+        point_size=10
+    )
+
+    plotter.add_title("Near Field Magnitude")
+    plotter.show()
