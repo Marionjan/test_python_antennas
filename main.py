@@ -11,18 +11,18 @@ from geometry.helicopter import Helicopter
 from geometry.fuselage import Fuselage
 from geometry.rotor import Rotor
 from geometry.tail import Tail
+from geometry.nose import Nose
 
 # =========================
 # Antennas
 # =========================
 from antennas.dipole import Dipole
-from antennas.monopole import Monopole
 
 # =========================
 # Electromagnetic solver
 # =========================
 from em_solver.mom_solver import MoMSolver
-from em_solver.solveur_base import EMSolver
+# from em_solver.solveur_base import EMSolver
 # from em_solver.fdtd_solver import FDTDSolver
 
 # =========================
@@ -41,7 +41,6 @@ from propagation.near_field import compute_near_field
 # Visualization
 # =========================
 from visualization.geometry_plot import plot_helicopter
-from visualization.field_plot import plot_field_slice
 from visualization.coupling_plot import plot_coupling_matrix
 
 
@@ -51,11 +50,13 @@ def main():
     # -------------------------
     # 1. Create helicopter geometry
     # -------------------------
-    fuselage = Fuselage(length=8.2, radius=1, conductivity=5.8e7)
-    rotor = Rotor(n_blades=6, blade_length=8, angular_speed=30)
-    tail = Tail(length=11.3, radius=0.4)
+    fuselage = Fuselage(length=5.25, radius=2, conductivity=5.8e7)
+    rotor = Rotor(n_blades=5, blade_length=8.1, angular_speed=30)
+    back_rotor = Rotor(n_blades = 4, blade_length = 1.2, angular_speed=30)
+    tail = Tail(length=10, radius=0.4)
+    nose = Nose(height = 1.6, radius=2)
 
-    heli = Helicopter(fuselage, rotor, tail)
+    heli = Helicopter(fuselage, rotor, back_rotor, tail, nose)
 
     # -------------------------
     # 2. Add antennas
@@ -68,6 +69,8 @@ def main():
     ant1 = Dipole(position=[4.1, 0, 0], orientation=[1, 0, 0], frequency=88e6)
     ant2 = Dipole(position=[-6, 0, 0.4], orientation=[0, 0, 1], frequency=88e6)
     ant3 = Dipole(position=[-5, 0, 0.4], orientation=[0, 0, 1], frequency=88e6)
+    
+    
     # Antennes tests
     # ant1 = Dipole(position=[0, 0, 0], orientation=[0, 0, 0], frequency=88e6)
     # ant2 = Dipole(position=[2, 0, 0], orientation=[0, 0, 1], frequency=88e6)
@@ -83,6 +86,8 @@ def main():
     heli.add_antenna(ant1)
     heli.add_antenna(ant2)
     heli.add_antenna(ant3)
+    
+    
     # heli.add_antenna(ant4)
     # heli.add_antenna(ant5)
     # heli.add_antenna(ant6)
@@ -95,7 +100,7 @@ def main():
     plot_helicopter(heli)
 
     # -------------------------
-    # 4. Create EM solver
+    # 4. Create Solver
     # -------------------------
     solver = MoMSolver(heli)
     # solver = EMSolver(heli)

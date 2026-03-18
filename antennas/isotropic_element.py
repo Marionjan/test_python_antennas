@@ -1,61 +1,14 @@
 import numpy as np
 
-from antennas.antenna import Antenna
-from utils.constants import C
-from utils.math_utils import normalize
-
-
-class Dipole(Antenna):
-    """
-    Simple dipole antenna model.
-    """
-
-    def __init__(self, position, orientation, frequency,gain, tx_power_dBm, length=None):
-        """
-        Parameters
-        ----------
-        position : list or array [x,y,z]
-        orientation : vector direction of dipole
-        frequency : Hz
-        """
-
-        super().__init__(position, orientation, frequency, gain, tx_power_dBm)
-
-        self.orientation = normalize(orientation)
-
-        # default : half-wave dipole
-        if length is None: 
-            self.length = C / (2 * frequency)
-        else:
-            self.length = length
+class IsotropicAntenna(Antenna):
+    def __init__(self, position, orientation, frequency, gain_dbi=0):
+        super().__init__(position, orientation, frequency)
+        self.gain_dbi = gain_dbi  # gain en dBi
 
     def radiation_pattern(self, theta, phi):
         """
-        Radiation pattern of a isotropic antenna.
-
-        Parameters
-        ----------
-        theta
-
-        Returns
-        -------
-        field magnitude
+        Antenne isotrope → gain constant dans toutes les directions.
+        Retourne le gain en linéaire.
         """
-
-        # classic spherical pattern
-        return np.ones_like(theta)
-
-    def gain(self, theta):
-        """
-        Approximate gain pattern.
-        """
-
-        return np.sin(theta) ** 2
-
-    def __repr__(self):
-
-        return (
-            f"Dipole(position={self.position}, "
-            f"orientation={self.orientation}, "
-            f"frequency={self.frequency/1e6:.1f} MHz)"
-        )
+        gain_linear = 10 ** (self.gain_dbi / 10)
+        return gain_linear
